@@ -2,15 +2,19 @@ version: '3'
 
 services:
   nginx-proxy:
-    image: jwilder/nginx-proxy
+    build: ./nginx-proxy
     container_name: ${COMPOSE_PROJECT_NAME}_proxy
-    ports:
-      - "80:80"
+    environment:
+      - VIRTUAL_HOST=${VIRTUAL_HOST}
+      - VIRTUAL_PORT=80
+    expose:
+      - "80"
     volumes:
-      - /etc/nginx/certs
-      - /etc/nginx/vhost.d
-      - /usr/share/nginx/html
+      - nginx_vhosts:/etc/nginx/vhost.d
+      - nginx_html:/usr/share/nginx/html
       - /var/run/docker.sock:/tmp/docker.sock:ro
+    networks:
+      - revproxy_apps
 
   #
   # Services FRONT
@@ -81,12 +85,11 @@ services:
       # Config du COTS 
       - FILEBROWSER_USER=admin
       - FILEBROWSER_PASS=mypassword
-      - FILEBROWSER_PORT=8080
       # Config pour nginx-proxy
-      - VIRTUAL_HOST=${VIRTUAL_HOST}
-      - VIRTUAL_PORT=8080 
+      #- VIRTUAL_HOST=${VIRTUAL_HOST}
+      #- VIRTUAL_PORT=80 
     expose:
-      - "8080"
+      - "80"
     depends_on:
       - nginx-proxy
     networks:
@@ -111,6 +114,9 @@ volumes:
   geoserver_data:
   mapstore_data:
   postgres_data:
+  nginx_vhosts:
+  nginx_html:
+
 
 networks:
   revproxy_apps:

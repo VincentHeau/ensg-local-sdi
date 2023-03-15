@@ -18,12 +18,10 @@ services:
     networks:
       - revproxy_apps
   
-   
-
   #
   # Services FRONT
   geoserver:
-    image: kartoza/geoserver:2.19.2
+    build: ./geoserver
     container_name: ${COMPOSE_PROJECT_NAME}_geoserver
     environment:
       - GEOSERVER_DATA_DIR=${GEOSERVER_DATA_DIR}
@@ -66,10 +64,7 @@ services:
       - mapstore_data:/usr/share/nginx/html
     depends_on:
       - geoserver
-      - nginx-proxy	docker volume rm -f $(PROJECT_NAME)_
-	docker volume rm -f $(PROJECT_NAME)_
-	docker volume rm -f $(PROJECT_NAME)_
-	docker volume rm -f $(PROJECT_NAME)_
+      - nginx-proxy	
     networks:
       - revproxy_apps
 
@@ -82,10 +77,7 @@ services:
     restart: unless-stopped
     depends_on:
       - nginx-proxy
-      - geoserver	docker volume rm -f $(PROJECT_NAME)_
-	docker volume rm -f $(PROJECT_NAME)_
-	docker volume rm -f $(PROJECT_NAME)_
-	docker volume rm -f $(PROJECT_NAME)_
+      - geoserver	
     expose:
       - "80"
     volumes:

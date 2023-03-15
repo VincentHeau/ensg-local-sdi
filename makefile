@@ -8,52 +8,55 @@ SHELL         = /bin/bash
 # Setup variables
 #
 # -> Project variables
-#PROJECT_NAME?=$(shell cat .env | grep -v ^\# | grep COMPOSE_PROJECT_NAME | sed 's/.*=//')
+PROJECT_NAME?=$(shell cat .env | grep -v ^\# | grep COMPOSE_PROJECT_NAME | sed 's/.*=//')
 
 # -> App variables
-#APP_BASEURL?=$(shell cat .env | grep PORTAINER_VHOST | sed 's/.*=//')
+APP_BASEURL?=$(shell cat .env | grep VIRTUAL_HOST | sed 's/.*=//')
 
 # Every command is a PHONY, to avoid file naming confliction -> strengh comes from good habits!
 .PHONY: help
 help:
 	@echo "=================================================================================="
-	@echo " Titre  "
-	@echo "  https://github.com/mon dépot"
+	@echo "                          ENSG SDI with docker"
+	@echo "             https://github.com/VincentHeau/ensg-local-sdi"
+	@echo " "
+	@echo " /!\ It's meant to be deployed behind a HTTPS reverse proxy "
 	@echo " "
 	@echo " Few hints:"
 	@echo "  make build            # Checks that everythings's OK then builds the stack"
 	@echo "  make up               # With working proxy, brings up the software stack"
 	@echo "  make update           # Update the whole stack"
 	@echo "  make hard-cleanup     # /!\ Remove images, containers, networks, volumes & data"
+	@echo "  make postinstall      # If at ENSG local station lab, activates projet host file"
 	@echo "=================================================================================="
 
 .PHONY: build
 build:
+	docker compose build
 
 .PHONY: up
 up: build
-	@bash echo "[INFO] Bringing up the stack"
+	@echo "[INFO] Bringing up the stack"
 	docker compose up -d --remove-orphans
-	@make urls
+	@echo "[WARNING] If at ENSG local station lab, please activate projet host file with -> # make set-hosts"
 
 .PHONY: hard-cleanup
 hard-cleanup:
-	@bash echo "[INFO] Bringing done the HTTPS automated proxy"
+	@echo "[INFO] Bringing done the HTTPS automated proxy"
 	docker compose -f docker-compose.yml down --remove-orphans
 	# Delete all hosted persistent data available in volumes
-	@bash echo "[INFO] Cleaning up static volumes"
-	
-	TODO
-
-	@bash echo "[INFO] Cleaning up containers & images"
+	@echo "[INFO] Cleaning up static volumes"
+	docker volume rm -f $(PROJECT_NAME)_nginx_vhosts
+	docker volume rm -f $(PROJECT_NAME)_nginx_html
+	docker volume rm -f $(PROJECT_NAME)_geoserver_data
+	docker volume rm -f $(PROJECT_NAME)_mapstore_data
+	docker volume rm -f $(PROJECT_NAME)_postgis_data
+	docker volume rm -f $(PROJECT_NAME)_pgadmin_data
+	docker volume rm -f $(PROJECT_NAME)_pgbackups
+	docker volume rm -f $(PROJECT_NAME)_mviewer-base
+	docker volume rm -f $(PROJECT_NAME)_geoserver_fonts
+	@echo "[INFO] Cleaning up containers & images"
 	docker system prune -a
-
-.PHONY: urls
-urls:
-	@bash echo "[WARNING] You should now activate projet host file with # make set-hosts"
-	@bash echo "[INFO] You may then access your project at the following URL:"
-	@bash echo "Portainer docker admin GUI:  https://${APP_BASEURL}/"
-	@echo ""
 
 .PHONY: pull
 pull: 

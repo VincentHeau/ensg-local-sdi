@@ -17,6 +17,8 @@ services:
       - /var/run/docker.sock:/tmp/docker.sock:ro
     networks:
       - revproxy_apps
+  
+   
 
   #
   # Services FRONT
@@ -64,7 +66,10 @@ services:
       - mapstore_data:/usr/share/nginx/html
     depends_on:
       - geoserver
-      - nginx-proxy
+      - nginx-proxy	docker volume rm -f $(PROJECT_NAME)_
+	docker volume rm -f $(PROJECT_NAME)_
+	docker volume rm -f $(PROJECT_NAME)_
+	docker volume rm -f $(PROJECT_NAME)_
     networks:
       - revproxy_apps
 
@@ -77,7 +82,10 @@ services:
     restart: unless-stopped
     depends_on:
       - nginx-proxy
-      - geoserver
+      - geoserver	docker volume rm -f $(PROJECT_NAME)_
+	docker volume rm -f $(PROJECT_NAME)_
+	docker volume rm -f $(PROJECT_NAME)_
+	docker volume rm -f $(PROJECT_NAME)_
     expose:
       - "80"
     volumes:
